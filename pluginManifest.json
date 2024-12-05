@@ -1,0 +1,19 @@
+{
+  "$schema": "https://raw.githubusercontent.com/microsoft/microsoft-performance-toolkit-sdk/main/src/PluginsSystem/Tools/Microsoft.Performance.Toolkit.Plugins.Cli/Manifest/PluginManifestSchema.json",
+  "identity": {
+    "id": "DnsAnalyticalView",
+    "version": "1.0.0"
+  },
+  "displayName": "DNS Analytical Log View",
+  "description": "Provide a better view for Microsoft-Windows-DNSServer/Analytical events",
+  "owners": [
+    {
+      "name": "KzA",
+      "address": "null",
+      "emailAddresses": [ "pm421@live.com" ],
+      "phoneNumbers": []
+    }
+  ],
+  "projectUrl": "https://github.com/PixelFrame/DnsAnalyticView",
+  "manifestVersion": 1.0
+}

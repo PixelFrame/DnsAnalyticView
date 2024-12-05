@@ -1,0 +1,315 @@
+﻿using Microsoft.Performance.SDK;
+using Microsoft.Performance.SDK.Processing;
+using System;
+using System.Collections.Generic;
+
+namespace DnsAnalyticView
+{
+    [Table]
+    public sealed class DnsAnalyticTable
+    {
+        public IReadOnlyDictionary<string, List<DnsAnalyticEvent>> Events { get; }
+        public DateTime StartTime { get; }
+
+        public DnsAnalyticTable(IReadOnlyDictionary<string, List<DnsAnalyticEvent>> events, DateTime startTime)
+        {
+            Events = events;
+            StartTime = startTime;
+        }
+
+        public static TableDescriptor TableDescriptor => new TableDescriptor(
+            Guid.Parse("{BA351884-2217-4199-A8BB-6C119BEFFE8D}"),
+            "DNS Analytic",
+            "DNS Server Analytical Events",
+            "DNS Server");
+
+        #region Columns
+        private static readonly ColumnConfiguration QNAMEColumn = new ColumnConfiguration(
+            new ColumnMetadata(new Guid("{727FABA0-39F1-4A27-9BB6-D7622FA08267}"), "QNAME", "Query Name"),
+            new UIHints { Width = 120 });
+
+        private static readonly ColumnConfiguration QTYPEColumn = new ColumnConfiguration(
+            new ColumnMetadata(new Guid("{727FABA1-39F1-4A27-9BB6-D7622FA08267}"), "QTYPE", "Query Type"),
+            new UIHints { Width = 40 });
+
+        private static readonly ColumnConfiguration XIDColumn = new ColumnConfiguration(
+            new ColumnMetadata(new Guid("{727FABA2-39F1-4A27-9BB6-D7622FA08267}"), "XID", "Transacation ID"),
+            new UIHints { Width = 40 });
+
+        private static readonly ColumnConfiguration QXIDColumn = new ColumnConfiguration(
+            new ColumnMetadata(new Guid("{727FABA3-39F1-4A27-9BB6-D7622FA08267}"), "QXID", "Query Transacation ID"),
+            new UIHints { Width = 40 });
+
+        private static readonly ColumnConfiguration RCODEColumn = new ColumnConfiguration(
+            new ColumnMetadata(new Guid("{727FABA4-39F1-4A27-9BB6-D7622FA08267}"), "RCODE", "DNS RCODE"),
+            new UIHints { Width = 40 });
+
+        private static readonly ColumnConfiguration FlagsColumn = new ColumnConfiguration(
+            new ColumnMetadata(new Guid("{727FABA5-39F1-4A27-9BB6-D7622FA08267}"), "Flags", "DNS Flags"),
+            new UIHints { Width = 40 });
+
+        private static readonly ColumnConfiguration DNSSECColumn = new ColumnConfiguration(
+            new ColumnMetadata(new Guid("{727FABA6-39F1-4A27-9BB6-D7622FA08267}"), "DNSSEC", "Is DNSSEC"),
+            new UIHints { Width = 40 });
+
+        private static readonly ColumnConfiguration SecureColumn = new ColumnConfiguration(
+            new ColumnMetadata(new Guid("{727FABA7-39F1-4A27-9BB6-D7622FA08267}"), "Secure", "Is Secure Update"),
+            new UIHints { Width = 40 });
+
+        private static readonly ColumnConfiguration ReasonColumn = new ColumnConfiguration(
+            new ColumnMetadata(new Guid("{727FABA8-39F1-4A27-9BB6-D7622FA08267}"), "Reason", "Failure Reason"),
+            new UIHints { Width = 40 });
+
+        private static readonly ColumnConfiguration SourceColumn = new ColumnConfiguration(
+            new ColumnMetadata(new Guid("{727FABB0-39F1-4A27-9BB6-D7622FA08267}"), "Source", "Packet Source"),
+            new UIHints { Width = 80 });
+
+        private static readonly ColumnConfiguration DestinationColumn = new ColumnConfiguration(
+            new ColumnMetadata(new Guid("{727FABB1-39F1-4A27-9BB6-D7622FA08267}"), "Destination", "Packet Destination"),
+            new UIHints { Width = 80 });
+
+        private static readonly ColumnConfiguration TCPColumn = new ColumnConfiguration(
+            new ColumnMetadata(new Guid("{727FABB2-39F1-4A27-9BB6-D7622FA08267}"), "TCP", "Is TCP Packet"),
+            new UIHints { Width = 80 });
+
+        private static readonly ColumnConfiguration SrcAddrColumn = new ColumnConfiguration(
+            new ColumnMetadata(new Guid("{727FABB3-39F1-4A27-9BB6-D7622FA08267}"), "SrcAddr", "Packet Source Address"),
+            new UIHints { Width = 80 });
+
+        private static readonly ColumnConfiguration SrcPortColumn = new ColumnConfiguration(
+            new ColumnMetadata(new Guid("{727FABB4-39F1-4A27-9BB6-D7622FA08267}"), "SrcPort", "Packet Source Port"),
+            new UIHints { Width = 40 });
+
+        private static readonly ColumnConfiguration DstAddrColumn = new ColumnConfiguration(
+            new ColumnMetadata(new Guid("{727FABB5-39F1-4A27-9BB6-D7622FA08267}"), "DstAddr", "Packet Destination Address"),
+            new UIHints { Width = 80 });
+
+        private static readonly ColumnConfiguration DstPortColumn = new ColumnConfiguration(
+            new ColumnMetadata(new Guid("{727FABB6-39F1-4A27-9BB6-D7622FA08267}"), "DstPort", "Packet Destination Port"),
+            new UIHints { Width = 40 });
+
+        private static readonly ColumnConfiguration ZoneColumn = new ColumnConfiguration(
+            new ColumnMetadata(new Guid("{727FABC0-39F1-4A27-9BB6-D7622FA08267}"), "Zone", "Matched Zone"),
+            new UIHints { Width = 120 });
+
+        private static readonly ColumnConfiguration ScopeColumn = new ColumnConfiguration(
+            new ColumnMetadata(new Guid("{727FABC1-39F1-4A27-9BB6-D7622FA08267}"), "Scope", "Matched Scope"),
+            new UIHints { Width = 120 });
+
+        private static readonly ColumnConfiguration PolicyNameColumn = new ColumnConfiguration(
+            new ColumnMetadata(new Guid("{727FABC2-39F1-4A27-9BB6-D7622FA08267}"), "PolicyName", "Matched DNS Policy Name"),
+            new UIHints { Width = 120 });
+
+        private static readonly ColumnConfiguration RecursionScopeColumn = new ColumnConfiguration(
+            new ColumnMetadata(new Guid("{727FABC3-39F1-4A27-9BB6-D7622FA08267}"), "RecursionScope", "Matched Recursion Scope"),
+            new UIHints { Width = 120 });
+
+        private static readonly ColumnConfiguration CacheScopeColumn = new ColumnConfiguration(
+            new ColumnMetadata(new Guid("{727FABC4-39F1-4A27-9BB6-D7622FA08267}"), "CacheScope", "Matched Cache Scope"),
+            new UIHints { Width = 120 });
+
+        private static readonly ColumnConfiguration CorrelationIDColumn = new ColumnConfiguration(
+            new ColumnMetadata(new Guid("{727FAB90-39F1-4A27-9BB6-D7622FA08267}"), "CorrelationID", "GUID to group a query"),
+            new UIHints { Width = 160 });
+
+        private static readonly ColumnConfiguration OperationColumn = new ColumnConfiguration(
+            new ColumnMetadata(new Guid("{727FAB91-39F1-4A27-9BB6-D7622FA08267}"), "Operation", "Server Operation"),
+            new UIHints { Width = 120 });
+
+        private static readonly ColumnConfiguration TimeColumn = new ColumnConfiguration(
+            new ColumnMetadata(new Guid("{727FAB92-39F1-4A27-9BB6-D7622FA08267}"), "Time", "Event Time"),
+            new UIHints { Width = 120 });
+
+        private static readonly ColumnConfiguration CPUColumn = new ColumnConfiguration(
+            new ColumnMetadata(new Guid("{727FAB93-39F1-4A27-9BB6-D7622FA08267}"), "CPU", "CPU Core where the event was fired"),
+            new UIHints { Width = 40 });
+
+        private static readonly ColumnConfiguration PIDColumn = new ColumnConfiguration(
+            new ColumnMetadata(new Guid("{727FAB94-39F1-4A27-9BB6-D7622FA08267}"), "PID", "Process ID"),
+            new UIHints { Width = 40 });
+
+        private static readonly ColumnConfiguration TIDColumn = new ColumnConfiguration(
+            new ColumnMetadata(new Guid("{727FAB95-39F1-4A27-9BB6-D7622FA08267}"), "TID", "Thread ID"),
+            new UIHints { Width = 40 });
+
+        private static readonly ColumnConfiguration EventIDColumn = new ColumnConfiguration(
+            new ColumnMetadata(new Guid("{727FAB96-39F1-4A27-9BB6-D7622FA08267}"), "EventID", "Event ID"),
+            new UIHints { Width = 40 });
+
+        private static readonly ColumnConfiguration RelativeTimeColumn = new ColumnConfiguration(
+            new ColumnMetadata(new Guid("{727FABFF-39F1-4A27-9BB6-D7622FA08267}"), "Relative Time", "Event Relative Time"),
+            new UIHints { Width = 120 });
+        #endregion
+
+        public void Build(ITableBuilder tableBuilder)
+        {
+            var allEvents = new List<DnsAnalyticEvent>();
+            foreach (var evt in Events)
+            {
+                allEvents.AddRange(evt.Value);
+            }
+            var baseProjection = Projection.Index(allEvents);
+
+            var cpuProjection = baseProjection.Compose(x => x.CPU);
+            var pidProjection = baseProjection.Compose(x => x.PID);
+            var tidProjection = baseProjection.Compose(x => x.TID);
+            var eventIdProjection = baseProjection.Compose(x => x.EventID);
+            var keywordsProjection = baseProjection.Compose(x => x.Keywords);
+            var levelProjection = baseProjection.Compose(x => x.Level);
+            var qnameProjection = baseProjection.Compose(x => x.QNAME);
+            var qtypeProjection = baseProjection.Compose(x => x.QTYPE);
+            var xidProjection = baseProjection.Compose(x => x.XID.ToString("X4"));
+            var qxidProjection = baseProjection.Compose(x => x.QXID.ToString("X4"));
+            var rcodeProjection = baseProjection.Compose(x => x.RCODE.ToString("X4"));
+            var reasonProjection = baseProjection.Compose(x => x.Reason);
+            var flagsProjection = baseProjection.Compose(x => x.Flags.ToString("X4"));
+            var dnssecProjection = baseProjection.Compose(x => x.DNSSEC);
+            var secureProjection = baseProjection.Compose(x => x.Secure);
+            var sourceProjection = baseProjection.Compose(x => $"{x.SrcAddr}:{x.SrcPort}");
+            var destinationProjection = baseProjection.Compose(x => $"{x.DstAddr}:{x.DstPort}");
+            var srcAddrProjection = baseProjection.Compose(x => x.SrcAddr.ToString());      // ToString is necessary for grouping, appears IPAddress does not have certain interface implemented
+            var srcPortProjection = baseProjection.Compose(x => x.SrcPort);
+            var dstAddrProjection = baseProjection.Compose(x => x.DstAddr.ToString());
+            var dstPortProjection = baseProjection.Compose(x => x.DstPort);
+            var tcpProjection = baseProjection.Compose(x => x.TCP);
+            var zoneProjection = baseProjection.Compose(x => x.Zone);
+            var scopeProjection = baseProjection.Compose(x => x.Scope);
+            var policyNameProjection = baseProjection.Compose(x => x.PolicyName);
+            var recursionScopeProjection = baseProjection.Compose(x => x.RecursionScope);
+            var cacheScopeProjection = baseProjection.Compose(x => x.CacheScope);
+            var correlationIdProjection = baseProjection.Compose(x => x.CorrelationID);
+            var operationProjection = baseProjection.Compose(x => x.Operation);
+            var timeProjection = baseProjection.Compose(x => x.Timestamp);
+            var relativeTimeProjection = baseProjection.Compose(x => Timestamp.FromNanoseconds((x.Timestamp - StartTime).Ticks * 100));
+
+            var byCorrelationIdConfig = new TableConfiguration("By CorrelationID")
+            {
+                Columns = new[]
+                {
+                    CorrelationIDColumn,
+                    TableConfiguration.PivotColumn,
+                    OperationColumn,
+                    QNAMEColumn,
+                    QTYPEColumn,
+                    XIDColumn,
+                    QXIDColumn,
+                    SourceColumn,
+                    DestinationColumn,
+                    TCPColumn,
+                    RCODEColumn,
+                    FlagsColumn,
+                    DNSSECColumn,
+                    SecureColumn,
+                    ZoneColumn,
+                    ScopeColumn,
+                    PolicyNameColumn,
+                    RecursionScopeColumn,
+                    CacheScopeColumn,
+                    TimeColumn,
+                    TableConfiguration.GraphColumn,
+                    RelativeTimeColumn,
+                },
+            };
+
+            var byQNameConfig = new TableConfiguration("By QNAME")
+            {
+                Columns = new[]
+                {
+                    QNAMEColumn,
+                    TableConfiguration.PivotColumn,
+                    CorrelationIDColumn,
+                    OperationColumn,
+                    QTYPEColumn,
+                    XIDColumn,
+                    QXIDColumn,
+                    SourceColumn,
+                    DestinationColumn,
+                    TCPColumn,
+                    RCODEColumn,
+                    FlagsColumn,
+                    DNSSECColumn,
+                    SecureColumn,
+                    ZoneColumn,
+                    ScopeColumn,
+                    PolicyNameColumn,
+                    RecursionScopeColumn,
+                    CacheScopeColumn,
+                    TimeColumn,
+                    TableConfiguration.GraphColumn,
+                    RelativeTimeColumn,
+                },
+            };
+
+            var byClientAddrConfig = new TableConfiguration("By Client IP")
+            {
+                Columns = new[]
+                {
+                    SrcAddrColumn,
+                    TableConfiguration.PivotColumn,
+                    QNAMEColumn,
+                    CorrelationIDColumn,
+                    OperationColumn,
+                    QTYPEColumn,
+                    XIDColumn,
+                    QXIDColumn,
+                    SourceColumn,
+                    DestinationColumn,
+                    TCPColumn,
+                    RCODEColumn,
+                    FlagsColumn,
+                    DNSSECColumn,
+                    SecureColumn,
+                    ZoneColumn,
+                    ScopeColumn,
+                    PolicyNameColumn,
+                    RecursionScopeColumn,
+                    CacheScopeColumn,
+                    TimeColumn,
+                    TableConfiguration.GraphColumn,
+                    RelativeTimeColumn,
+                },
+                InitialFilterQuery = "[Operation]:=\"QUERY_RECEIVED\"",
+            };
+
+            byCorrelationIdConfig.AddColumnRole(ColumnRole.StartTime, RelativeTimeColumn);
+            byQNameConfig.AddColumnRole(ColumnRole.StartTime, RelativeTimeColumn);
+            byClientAddrConfig.AddColumnRole(ColumnRole.StartTime, RelativeTimeColumn);
+
+            tableBuilder
+                .AddTableConfiguration(byCorrelationIdConfig)
+                .AddTableConfiguration(byQNameConfig)
+                .AddTableConfiguration(byClientAddrConfig)
+                .SetDefaultTableConfiguration(byCorrelationIdConfig)
+                .SetRowCount(allEvents.Count)
+                .AddColumn(CorrelationIDColumn, correlationIdProjection)
+                .AddColumn(OperationColumn, operationProjection)
+                .AddColumn(QNAMEColumn, qnameProjection)
+                .AddColumn(QTYPEColumn, qtypeProjection)
+                .AddColumn(XIDColumn, xidProjection)
+                .AddColumn(QXIDColumn, qxidProjection)
+                .AddColumn(SourceColumn, sourceProjection)
+                .AddColumn(DestinationColumn, destinationProjection)
+                .AddColumn(SrcAddrColumn, srcAddrProjection)
+                .AddColumn(DstAddrColumn, dstAddrProjection)
+                .AddColumn(SrcPortColumn, srcPortProjection)
+                .AddColumn(DstPortColumn, dstPortProjection)
+                .AddColumn(TCPColumn, tcpProjection)
+                .AddColumn(RCODEColumn, rcodeProjection)
+                .AddColumn(ReasonColumn, reasonProjection)
+                .AddColumn(FlagsColumn, flagsProjection)
+                .AddColumn(DNSSECColumn, dnssecProjection)
+                .AddColumn(SecureColumn, secureProjection)
+                .AddColumn(ZoneColumn, zoneProjection)
+                .AddColumn(ScopeColumn, scopeProjection)
+                .AddColumn(PolicyNameColumn, policyNameProjection)
+                .AddColumn(RecursionScopeColumn, recursionScopeProjection)
+                .AddColumn(CacheScopeColumn, cacheScopeProjection)
+                .AddColumn(TimeColumn, timeProjection)
+                .AddColumn(CPUColumn, cpuProjection)
+                .AddColumn(PIDColumn, pidProjection)
+                .AddColumn(TIDColumn, tidProjection)
+                .AddColumn(EventIDColumn, eventIdProjection)
+                .AddColumn(RelativeTimeColumn, relativeTimeProjection);
+        }
+    }
+}
