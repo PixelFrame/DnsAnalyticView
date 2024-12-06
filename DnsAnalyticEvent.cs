@@ -9,7 +9,7 @@ namespace DnsAnalyticView
     {
         public static readonly Guid Microsoft_Windows_DNSServer = new Guid("eb79061a-a566-4698-9119-3ed2807060e7");
 
-        public DnsAnalyticEvent(IGenericEvent e)
+        public DnsAnalyticEvent(IGenericEvent e, bool LoadPacketData = false)
         {
             if (e.ProviderId != Microsoft_Windows_DNSServer || e.Channel != 16) throw new ArgumentException("Not DNS Analytic event");
             if (e.Fields == null) throw new InvalidOperationException("Event decoding failed");
@@ -29,19 +29,26 @@ namespace DnsAnalyticView
             if (e.Fields.TryGetValue(nameof(QXID), out value)) QXID = value.AsUInt32;
             if (e.Fields.TryGetValue(nameof(RCODE), out value)) RCODE = value.AsUInt32;
             if (e.Fields.TryGetValue(nameof(Flags), out value)) Flags = value.AsUInt32;
+            if (e.Fields.TryGetValue(nameof(RD), out value)) RD = value.AsByte != 0;
+            if (e.Fields.TryGetValue(nameof(AA), out value)) AA = value.AsByte != 0;
+            if (e.Fields.TryGetValue(nameof(AD), out value)) AD = value.AsByte != 0;
             if (e.Fields.TryGetValue(nameof(Secure), out value)) Secure = value.AsByte != 0;
             if (e.Fields.TryGetValue(nameof(TCP), out value)) TCP = value.AsByte != 0;
             if (e.Fields.TryGetValue(nameof(DNSSEC), out value)) DNSSEC = value.AsByte != 0;
             if (e.Fields.TryGetValue(nameof(Zone), out value)) Zone = value.AsString;
+            if (e.Fields.TryGetValue("ZoneScope", out value)) Scope = value.AsString;
             if (e.Fields.TryGetValue(nameof(Scope), out value)) Scope = value.AsString;
             if (e.Fields.TryGetValue(nameof(PolicyName), out value)) PolicyName = value.AsString;
             if (e.Fields.TryGetValue(nameof(RecursionScope), out value)) RecursionScope = value.AsString;
+            if (e.Fields.TryGetValue(nameof(RecursionDepth), out value)) RecursionDepth = value.AsUInt32;
+            if (e.Fields.TryGetValue(nameof(ElapsedTime), out value)) ElapsedTime = value.AsUInt32;
             if (e.Fields.TryGetValue(nameof(CacheScope), out value)) CacheScope = value.AsString;
             if (e.Fields.TryGetValue(nameof(Reason), out value)) Reason = value.AsString;
+            if (e.Fields.TryGetValue(nameof(AdditionalInfo), out value)) AdditionalInfo = value.AsString;
             if (e.Fields.TryGetValue("AliasFailureReason", out value)) Reason = value.AsString;
             if (e.Fields.TryGetValue("GUID", out value)) CorrelationID = new Guid(value.AsString);
             if (e.Fields.TryGetValue("QueryGUID", out value)) CorrelationID = new Guid(value.AsString);
-            if (e.Fields.TryGetValue(nameof(PacketData), out value)) PacketData = value.AsBinary;
+            if (e.Fields.TryGetValue(nameof(EDNSUdpPayloadSize), out value)) EDNSUdpPayloadSize = value.AsUInt32;
 
             switch (Operation)
             {
@@ -147,6 +154,8 @@ namespace DnsAnalyticView
                         break;
                     }
             }
+
+            if (LoadPacketData && e.Fields.TryGetValue(nameof(PacketData), out value)) PacketData = value.AsBinary;
         }
         public string Operation { get; set; }
         public DateTime Timestamp { get; set; }
@@ -162,6 +171,9 @@ namespace DnsAnalyticView
         public uint QXID { get; set; } = 0;
         public uint RCODE { get; set; } = 0;
         public uint Flags { get; set; } = 0;
+        public bool RD { get; set; } = false;
+        public bool AA { get; set; } = false;
+        public bool AD { get; set; } = false;
         public bool TCP { get; set; } = false;
         public bool DNSSEC { get; set; } = false;
         public bool Secure { get; set; } = false;
@@ -173,10 +185,28 @@ namespace DnsAnalyticView
         public string Scope { get; set; } = string.Empty;
         public string PolicyName { get; set; } = string.Empty;
         public string RecursionScope { get; set; } = string.Empty;
+        public uint RecursionDepth { get; set; } = 0;
+        public uint ElapsedTime { get; set; } = 0;
         public string CacheScope { get; set; } = string.Empty;
         public string Reason { get; set; } = string.Empty;
+        public string AdditionalInfo { get; set; } = string.Empty;
         public Guid CorrelationID { get; set; } = Guid.Empty;
         public IReadOnlyList<byte> PacketData { get; set; } = Array.Empty<byte>();
+        public uint EDNSUdpPayloadSize { get; set; } = 0;
+
+        /* Rarely used or unknown usage fields 
+        public uint BufferSize { get; set; } = 0;
+        public string StaleRecordsPresent { get; set; } = string.Empty;
+        public uint QueriesAttached { get; set; } = 0;
+        public ulong DataTag { get; set; } = 0;
+        public Guid EDNSCorrelationTag { get; set; } = Guid.Empty;
+        public string EDNSScopeName { get; set; } = string.Empty;
+        public byte EDNSExtendedRCodeBits { get; set; } = 0;
+        public uint EDNSFlags { get; set; } = 0;
+        public string EDNSVirtualizationInstance { get; set; } = string.Empty;
+        public ulong EDNSDataTag { get; set; } = 0;
+        public string CacheNodeName { get; set; } = string.Empty;
+        */
     }
 
     public enum EventLevel
@@ -188,7 +218,7 @@ namespace DnsAnalyticView
 
     public enum RRType
     {
-        Reserved0 = 0,
+        NotAvailable = 0,
         A = 1,
         NS = 2,
         MD = 3,
