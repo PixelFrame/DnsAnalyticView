@@ -116,11 +116,19 @@ namespace DnsAnalyticView
                     }
                 case "IXFR_RESP_OUT":
                 case "AXFR_RESP_OUT":
-                case "XFR_NOTIFY_OUT":
+                //case "XFR_NOTIFY_OUT":
                 case "XFR_NOTIFY_ACK_OUT":
                     {
                         SrcAddr = IPAddress.TryParse(e.Fields["InterfaceIP"].AsString, out var InterfaceIPAddr) ? InterfaceIPAddr : IPAddress.Any;
                         DstAddr = IPAddress.TryParse(e.Fields["Destination"].AsString, out var DestinationAddr) ? DestinationAddr : IPAddress.Any;
+                        SrcPort = 0;
+                        break;
+                    }
+                // Well, in Windows Server 2025 manifest, XFR_NOTIFY_OUT uses "Source" field as destination address
+                case "XFR_NOTIFY_OUT":
+                    {
+                        SrcAddr = IPAddress.TryParse(e.Fields["InterfaceIP"].AsString, out var InterfaceIPAddr) ? InterfaceIPAddr : IPAddress.Any;
+                        DstAddr = IPAddress.TryParse(e.Fields["Source"].AsString, out var DestinationAddr) ? DestinationAddr : IPAddress.Any;
                         SrcPort = 0;
                         break;
                     }
