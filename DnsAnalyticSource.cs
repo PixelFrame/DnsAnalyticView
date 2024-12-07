@@ -24,7 +24,7 @@ namespace DnsAnalyticView
                 {
                     Name = "MIT",
                     Text = "Please see the link for the full license text.",
-                    Uri = "https://github.com/PixelFrame/DnsAnalyticView/blob/main/LICENSE.txt",
+                    Uri = "https://github.com/PixelFrame/DnsAnalyticView/blob/master/LICENSE.txt",
                 },
                 Owners = new[]
                 {
