@@ -1,7 +1,9 @@
-﻿using Microsoft.Performance.SDK.Processing;
-using Microsoft.Windows.EventTracing;
+﻿using Microsoft.Diagnostics.Tracing;
+using Microsoft.Diagnostics.Tracing.Parsers;
+using Microsoft.Performance.SDK.Processing;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -38,15 +40,14 @@ namespace DnsAnalyticView
             double currentFile = 0;
             var startTime = DateTime.MaxValue;
             var endTime = DateTime.MinValue;
+            var manifestStream = new MemoryStream(System.Text.Encoding.ASCII.GetBytes(Manifest._10_0_26100_1457));
+            var manifest = new ProviderManifest(manifestStream);
             foreach (var path in filePaths)
             {
-                using var trace = TraceProcessor.Create(path, new TraceProcessorSettings() { AllowLostEvents = true });
-                var pendingProcessData = trace.UseGenericEvents(DnsAnalyticEvent.Microsoft_Windows_DNSServer);
-                trace.Process();
-                var eventData = pendingProcessData.Result;
-
+                using var source = new ETWTraceEventSource(path);
+                source.Dynamic.AddDynamicProvider(manifest);
                 var newEvents = new List<DnsAnalyticEvent>();
-                foreach (var e in eventData.Events)
+                source.Dynamic.AddCallbackForProviderEvent("Microsoft-Windows-DNSServer", null, delegate (TraceEvent e)
                 {
                     try
                     {
@@ -55,9 +56,11 @@ namespace DnsAnalyticView
                     }
                     catch (Exception ex)
                     {
-                        Logger.Error("Error occured during parsing event with ID {0}: {1}", e.Id, ex.Message);
+                        Logger.Error("Error occured during parsing event with ID {0}: {1}", e.ID, ex.Message);
                     }
-                }
+                });
+                source.Process();
+
                 if (newEvents.Count == 0)
                 {
                     Logger.Error("No event processed, either decoding failed or the log does not contain the provider");
@@ -65,7 +68,7 @@ namespace DnsAnalyticView
                 }
                 else
                 {
-                    Logger.Info("Processed {0} events from {1}", eventData.Events.Count, path);
+                    Logger.Info("Processed {0} events from {1}", newEvents.Count, path);
                 }
                 if (newEvents[0].Timestamp < startTime) { startTime = newEvents[0].Timestamp; }
                 if (newEvents.Last().Timestamp > endTime) { endTime = newEvents.Last().Timestamp; }

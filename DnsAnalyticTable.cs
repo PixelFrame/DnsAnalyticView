@@ -42,7 +42,7 @@ namespace DnsAnalyticView
 
         private static readonly ColumnConfiguration RCODEColumn = new ColumnConfiguration(
             new ColumnMetadata(new Guid("{727FABA4-39F1-4A27-9BB6-D7622FA08267}"), "RCODE", "DNS RCODE"),
-            new UIHints { Width = 40 });
+            new UIHints { Width = 80 });
 
         private static readonly ColumnConfiguration RDColumn = new ColumnConfiguration(
             new ColumnMetadata(new Guid("{727FABA5-39F1-4A27-9BB6-D7622FA08267}"), "RD", "Recursion Desired"),
@@ -78,11 +78,11 @@ namespace DnsAnalyticView
 
         private static readonly ColumnConfiguration SourceColumn = new ColumnConfiguration(
             new ColumnMetadata(new Guid("{727FABD0-39F1-4A27-9BB6-D7622FA08267}"), "Source", "Packet Source"),
-            new UIHints { Width = 80 });
+            new UIHints { Width = 100 });
 
         private static readonly ColumnConfiguration DestinationColumn = new ColumnConfiguration(
             new ColumnMetadata(new Guid("{727FABD1-39F1-4A27-9BB6-D7622FA08267}"), "Destination", "Packet Destination"),
-            new UIHints { Width = 80 });
+            new UIHints { Width = 100 });
 
         private static readonly ColumnConfiguration TCPColumn = new ColumnConfiguration(
             new ColumnMetadata(new Guid("{727FABD2-39F1-4A27-9BB6-D7622FA08267}"), "TCP", "Is TCP Packet"),
@@ -110,19 +110,19 @@ namespace DnsAnalyticView
 
         private static readonly ColumnConfiguration ScopeColumn = new ColumnConfiguration(
             new ColumnMetadata(new Guid("{727FABE1-39F1-4A27-9BB6-D7622FA08267}"), "Scope", "Matched Scope"),
-            new UIHints { Width = 120 });
+            new UIHints { Width = 80 });
 
         private static readonly ColumnConfiguration PolicyNameColumn = new ColumnConfiguration(
             new ColumnMetadata(new Guid("{727FABE2-39F1-4A27-9BB6-D7622FA08267}"), "PolicyName", "Matched DNS Policy Name"),
-            new UIHints { Width = 120 });
+            new UIHints { Width = 80 });
 
         private static readonly ColumnConfiguration RecursionScopeColumn = new ColumnConfiguration(
             new ColumnMetadata(new Guid("{727FABE3-39F1-4A27-9BB6-D7622FA08267}"), "RecursionScope", "Matched Recursion Scope"),
-            new UIHints { Width = 120 });
+            new UIHints { Width = 80 });
 
         private static readonly ColumnConfiguration CacheScopeColumn = new ColumnConfiguration(
             new ColumnMetadata(new Guid("{727FABE4-39F1-4A27-9BB6-D7622FA08267}"), "CacheScope", "Matched Cache Scope"),
-            new UIHints { Width = 120 });
+            new UIHints { Width = 80 });
 
         private static readonly ColumnConfiguration RecursionDepthColumn = new ColumnConfiguration(
             new ColumnMetadata(new Guid("{727FABE5-39F1-4A27-9BB6-D7622FA08267}"), "RecursionDepth", "Recursion Depth"),
@@ -142,7 +142,7 @@ namespace DnsAnalyticView
 
         private static readonly ColumnConfiguration TimeColumn = new ColumnConfiguration(
             new ColumnMetadata(new Guid("{727FAB92-39F1-4A27-9BB6-D7622FA08267}"), "Time", "Event Time"),
-            new UIHints { Width = 120 });
+            new UIHints { Width = 180, AggregationMode = AggregationMode.Min });
 
         private static readonly ColumnConfiguration CPUColumn = new ColumnConfiguration(
             new ColumnMetadata(new Guid("{727FAB93-39F1-4A27-9BB6-D7622FA08267}"), "CPU", "CPU Core where the event was fired"),
@@ -170,7 +170,7 @@ namespace DnsAnalyticView
 
         private static readonly ColumnConfiguration RelativeTimeColumn = new ColumnConfiguration(
             new ColumnMetadata(new Guid("{727FABFF-39F1-4A27-9BB6-D7622FA08267}"), "Relative Time", "Event Relative Time"),
-            new UIHints { Width = 120 });
+            new UIHints { Width = 100, AggregationMode = AggregationMode.Min });
         #endregion
 
         public void Build(ITableBuilder tableBuilder)
@@ -192,7 +192,7 @@ namespace DnsAnalyticView
             var qtypeProjection = baseProjection.Compose(x => x.QTYPE);
             var xidProjection = baseProjection.Compose(x => x.XID.ToString("X4"));
             var qxidProjection = baseProjection.Compose(x => x.QXID.ToString("X4"));
-            var rcodeProjection = baseProjection.Compose(x => x.RCODE.ToString("X4"));
+            var rcodeProjection = baseProjection.Compose(x => x.RCODE);
             var reasonProjection = baseProjection.Compose(x => x.Reason);
             var ednsUdpPayloadSizeProjection = baseProjection.Compose(x => x.EDNSUdpPayloadSize);
             var flagsProjection = baseProjection.Compose(x => x.Flags.ToString("X4"));
