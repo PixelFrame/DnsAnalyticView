@@ -1,5 +1,13 @@
 # DnsAnalyticView
 
+[WPA](https://learn.microsoft.com/en-us/windows-hardware/test/wpt/windows-performance-analyzer) plugin to provide a better view for Microsoft-Windows-DNSServer/Analytical events.
+
+## Sample
+
+![wpa_sample](./Img/Sample.png)
+
+## Event Fields
+
 * Visible - Column shown in tables by default
 * Hidden - Column can be added
 * Implemented - Property implemented in DnsAnalyticEvent object but not built as a column
