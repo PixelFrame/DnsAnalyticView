@@ -1,5 +1,6 @@
-﻿using Microsoft.Diagnostics;
-using Microsoft.Diagnostics.Tracing;
+﻿using Microsoft.Diagnostics.Tracing;
+using Microsoft.Performance.SDK;
+using Microsoft.Performance.SDK.Extensibility;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,15 +8,18 @@ using System.Net;
 
 namespace DnsAnalyticView
 {
-    public class DnsAnalyticEvent
+    public class DnsAnalyticEvent : IKeyedDataType<Guid>, IComparable<Guid>
     {
         public static readonly Guid Microsoft_Windows_DNSServer = new Guid("eb79061a-a566-4698-9119-3ed2807060e7");
 
-        public DnsAnalyticEvent(TraceEvent e, bool LoadPacketData = false)
+        internal static DateTime TraceStartTime = DateTime.MinValue;
+
+        public DnsAnalyticEvent(TraceEvent e, long startTime, bool LoadPacketData = false)
         {
             if (e.ProviderGuid != Microsoft_Windows_DNSServer || e.Channel != (TraceEventChannel)16) throw new ArgumentException("Not DNS Analytic event");
             Operation = e.FormattedMessage[..e.FormattedMessage.IndexOf(':')];
             Timestamp = e.TimeStamp;
+            RelativeTime = new Timestamp((e.TimeStamp.Ticks - startTime) * 100);
             CPU = e.ProcessorNumber;
             PID = e.ProcessID;
             TID = e.ThreadID;
@@ -167,6 +171,7 @@ namespace DnsAnalyticView
         }
         public string Operation { get; set; }
         public DateTime Timestamp { get; set; }
+        public Timestamp RelativeTime { get; set; }
         public int CPU { get; set; }
         public int PID { get; set; }
         public int TID { get; set; }
@@ -201,6 +206,13 @@ namespace DnsAnalyticView
         public Guid CorrelationID { get; set; } = Guid.Empty;
         public IReadOnlyList<byte> PacketData { get; set; } = Array.Empty<byte>();
         public uint EDNSUdpPayloadSize { get; set; } = 0;
+
+        public Guid GetKey() => Microsoft_Windows_DNSServer;
+
+        public int CompareTo(Guid other)
+        {
+            return Microsoft_Windows_DNSServer.CompareTo(other);
+        }
 
         /* Rarely used or unknown usage fields 
         public uint? BufferSize { get; set; } = 0;

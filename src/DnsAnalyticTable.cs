@@ -1,4 +1,5 @@
 ﻿using Microsoft.Performance.SDK;
+using Microsoft.Performance.SDK.Extensibility;
 using Microsoft.Performance.SDK.Processing;
 using System;
 using System.Collections.Generic;
@@ -8,20 +9,12 @@ namespace DnsAnalyticView
     [Table]
     public sealed class DnsAnalyticTable
     {
-        public IReadOnlyDictionary<string, List<DnsAnalyticEvent>> Events { get; }
-        public DateTime StartTime { get; }
-
-        public DnsAnalyticTable(IReadOnlyDictionary<string, List<DnsAnalyticEvent>> events, DateTime startTime)
-        {
-            Events = events;
-            StartTime = startTime;
-        }
-
         public static TableDescriptor TableDescriptor => new TableDescriptor(
             Guid.Parse("{BA351884-2217-4199-A8BB-6C119BEFFE8D}"),
             "DNS Analytic",
             "DNS Server Analytical Events",
-            "DNS Server");
+            "DNS Server",
+            requiredDataCookers: new List<DataCookerPath> { DnsAnalyticEventCooker.CookerPath });
 
         #region Columns
         private static readonly ColumnConfiguration QNAMEColumn = new ColumnConfiguration(
@@ -130,7 +123,7 @@ namespace DnsAnalyticView
 
         private static readonly ColumnConfiguration ElapsedTimeColumn = new ColumnConfiguration(
             new ColumnMetadata(new Guid("{727FABE6-39F1-4A27-9BB6-D7622FA08267}"), "ElapsedTime", "Elapsed Time"),
-            new UIHints { Width = 80 });
+            new UIHints { Width = 80, AggregationMode = AggregationMode.Max });
 
         private static readonly ColumnConfiguration CorrelationIDColumn = new ColumnConfiguration(
             new ColumnMetadata(new Guid("{727FAB90-39F1-4A27-9BB6-D7622FA08267}"), "CorrelationID", "GUID to group a query"),
@@ -169,18 +162,16 @@ namespace DnsAnalyticView
             new UIHints { Width = 40 });
 
         private static readonly ColumnConfiguration RelativeTimeColumn = new ColumnConfiguration(
-            new ColumnMetadata(new Guid("{727FABFF-39F1-4A27-9BB6-D7622FA08267}"), "Relative Time", "Event Relative Time"),
+            new ColumnMetadata(new Guid("{727FABFF-39F1-4A27-9BB6-D7622FA08267}"), "RelativeTime", "Relative Time"),
             new UIHints { Width = 100, AggregationMode = AggregationMode.Min });
+
         #endregion
 
-        public void Build(ITableBuilder tableBuilder)
+        public static void BuildTable(ITableBuilder tableBuilder, IDataExtensionRetrieval tableData)
         {
-            var allEvents = new List<DnsAnalyticEvent>();
-            foreach (var evt in Events)
-            {
-                allEvents.AddRange(evt.Value);
-            }
-            var baseProjection = Projection.Index(allEvents);
+            var events = tableData.QueryOutput<List<DnsAnalyticEvent>>(new DataOutputPath(DnsAnalyticEventCooker.CookerPath, "Events"));
+
+            var baseProjection = Projection.Index(events);
 
             var cpuProjection = baseProjection.Compose(x => x.CPU);
             var pidProjection = baseProjection.Compose(x => x.PID);
@@ -214,11 +205,11 @@ namespace DnsAnalyticView
             var recursionScopeProjection = baseProjection.Compose(x => x.RecursionScope);
             var cacheScopeProjection = baseProjection.Compose(x => x.CacheScope);
             var recursionDepthProjection = baseProjection.Compose(x => x.RecursionDepth);
-            var elapsedTimeProjection = baseProjection.Compose(x => TimestampDelta.FromMilliseconds(x.ElapsedTime));
+            var elapsedTimeProjection = baseProjection.Compose(x => TimestampDelta.FromNanoseconds((long)x.ElapsedTime * 100));     // Needs verification
             var correlationIdProjection = baseProjection.Compose(x => x.CorrelationID);
             var operationProjection = baseProjection.Compose(x => x.Operation);
             var timeProjection = baseProjection.Compose(x => x.Timestamp);
-            var relativeTimeProjection = baseProjection.Compose(x => Timestamp.FromNanoseconds((x.Timestamp - StartTime).Ticks * 100));
+            var relativeTimeProjection = baseProjection.Compose(x => x.RelativeTime);
 
             var byCorrelationIdConfig = new TableConfiguration("By CorrelationID")
             {
@@ -324,7 +315,7 @@ namespace DnsAnalyticView
                 .AddTableConfiguration(byQNameConfig)
                 .AddTableConfiguration(byClientAddrConfig)
                 .SetDefaultTableConfiguration(byCorrelationIdConfig)
-                .SetRowCount(allEvents.Count)
+                .SetRowCount(events.Count)
                 .AddColumn(CorrelationIDColumn, correlationIdProjection)
                 .AddColumn(OperationColumn, operationProjection)
                 .AddColumn(QNAMEColumn, qnameProjection)

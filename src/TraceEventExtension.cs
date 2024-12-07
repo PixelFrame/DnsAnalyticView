@@ -1,7 +1,5 @@
 ﻿using Microsoft.Diagnostics.Tracing;
 using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace DnsAnalyticView
 {
@@ -10,9 +8,9 @@ namespace DnsAnalyticView
         public static uint UIntPayloadByName(this TraceEvent Event, string Name, uint DefaultVal = 0)
         {
             var p = Event.PayloadByName(Name);
-            if (p == null) 
+            if (p == null)
             {
-                return DefaultVal; 
+                return DefaultVal;
             }
             else
             {

@@ -1,5 +1,6 @@
 ﻿using Microsoft.Performance.SDK.Processing;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 
 namespace DnsAnalyticView
@@ -30,6 +31,7 @@ namespace DnsAnalyticView
                 {
                     new ContactInfo
                     {
+                        Name = "KzA",
                         Address = "N/A",
                         EmailAddresses = new[]
                         {
@@ -58,10 +60,12 @@ namespace DnsAnalyticView
             IProcessorEnvironment processorEnvironment,
             ProcessorOptions options)
         {
+            Debug.Assert(!(applicationEnvironment is null));
+
             return new DnsAnalyticDataProcessor(
-                dataSources.Select(x => x.Uri.LocalPath).ToArray(),
+                new DnsAnalyticParser(dataSources.Select(x => x.Uri.LocalPath).ToArray()),
                 options,
-                applicationEnvironment!,
+                applicationEnvironment,
                 processorEnvironment);
         }
 
