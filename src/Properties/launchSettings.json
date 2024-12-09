@@ -6,7 +6,7 @@
     "WPA": {
       "commandName": "Executable",
       "executablePath": "C:\\Program Files (x86)\\Windows Kits\\10\\Windows Performance Toolkit\\wpa.exe",
-      "commandLineArgs": "-nodefault -addsearchdir K:\\repos\\DnsAnalyticView\\src\\bin\\x64\\Debug\\netstandard2.1",
+      "commandLineArgs": "-nodefault -addsearchdir $(ProjectDir)bin\\$(Platform)\\$(Configuration)",
       "nativeDebugging": false
     }
   }
