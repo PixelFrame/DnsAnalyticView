@@ -97,6 +97,10 @@ namespace DnsAnalyticView
             new ColumnMetadata(new Guid("{727FABD6-39F1-4A27-9BB6-D7622FA08267}"), "DstPort", "Packet Destination Port"),
             new UIHints { Width = 40 });
 
+        private static readonly ColumnConfiguration RemoteAddrColumn = new ColumnConfiguration(
+            new ColumnMetadata(new Guid("{727FABD7-39F1-4A27-9BB6-D7622FA08267}"), "Remote Address", "Packet Remote Address"),
+            new UIHints { Width = 80 });
+
         private static readonly ColumnConfiguration ZoneColumn = new ColumnConfiguration(
             new ColumnMetadata(new Guid("{727FABE0-39F1-4A27-9BB6-D7622FA08267}"), "Zone", "Matched Zone"),
             new UIHints { Width = 120 });
@@ -198,6 +202,7 @@ namespace DnsAnalyticView
             var srcPortProjection = baseProjection.Compose(x => x.SrcPort);
             var dstAddrProjection = baseProjection.Compose(x => x.DstAddr.ToString());
             var dstPortProjection = baseProjection.Compose(x => x.DstPort);
+            var remoteAddrProjection = baseProjection.Compose(x => x.RemoteAddr.ToString());
             var tcpProjection = baseProjection.Compose(x => x.TCP);
             var zoneProjection = baseProjection.Compose(x => x.Zone);
             var scopeProjection = baseProjection.Compose(x => x.Scope);
@@ -271,11 +276,11 @@ namespace DnsAnalyticView
                 },
             };
 
-            var byClientAddrConfig = new TableConfiguration("By Client IP")
+            var byRemoteAddrConfig = new TableConfiguration("By Remote Address")
             {
                 Columns = new[]
                 {
-                    SrcAddrColumn,
+                    RemoteAddrColumn,
                     TableConfiguration.PivotColumn,
                     QNAMEColumn,
                     CorrelationIDColumn,
@@ -300,20 +305,19 @@ namespace DnsAnalyticView
                     TableConfiguration.GraphColumn,
                     RelativeTimeColumn,
                 },
-                InitialFilterQuery = "[Operation]:=\"QUERY_RECEIVED\"",
             };
 
             byCorrelationIdConfig.AddColumnRole(ColumnRole.EndTime, RelativeTimeColumn);
             byCorrelationIdConfig.AddColumnRole(ColumnRole.Duration, ElapsedTimeColumn);
             byQNameConfig.AddColumnRole(ColumnRole.EndTime, RelativeTimeColumn);
             byQNameConfig.AddColumnRole(ColumnRole.Duration, ElapsedTimeColumn);
-            byClientAddrConfig.AddColumnRole(ColumnRole.EndTime, RelativeTimeColumn);
-            byClientAddrConfig.AddColumnRole(ColumnRole.Duration, ElapsedTimeColumn);
+            byRemoteAddrConfig.AddColumnRole(ColumnRole.EndTime, RelativeTimeColumn);
+            byRemoteAddrConfig.AddColumnRole(ColumnRole.Duration, ElapsedTimeColumn);
 
             tableBuilder
                 .AddTableConfiguration(byCorrelationIdConfig)
                 .AddTableConfiguration(byQNameConfig)
-                .AddTableConfiguration(byClientAddrConfig)
+                .AddTableConfiguration(byRemoteAddrConfig)
                 .SetDefaultTableConfiguration(byCorrelationIdConfig)
                 .SetRowCount(events.Count)
                 .AddColumn(CorrelationIDColumn, correlationIdProjection)
@@ -326,6 +330,7 @@ namespace DnsAnalyticView
                 .AddColumn(DestinationColumn, destinationProjection)
                 .AddColumn(SrcAddrColumn, srcAddrProjection)
                 .AddColumn(DstAddrColumn, dstAddrProjection)
+                .AddColumn(RemoteAddrColumn, remoteAddrProjection)
                 .AddColumn(SrcPortColumn, srcPortProjection)
                 .AddColumn(DstPortColumn, dstPortProjection)
                 .AddColumn(TCPColumn, tcpProjection)
