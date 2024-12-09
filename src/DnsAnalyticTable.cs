@@ -31,7 +31,7 @@ namespace DnsAnalyticView
 
         private static readonly ColumnConfiguration QXIDColumn = new ColumnConfiguration(
             new ColumnMetadata(new Guid("{727FABA3-39F1-4A27-9BB6-D7622FA08267}"), "QXID", "Query Transacation ID"),
-            new UIHints { Width = 40 });
+            new UIHints { Width = 40, IsVisible = false });
 
         private static readonly ColumnConfiguration RCODEColumn = new ColumnConfiguration(
             new ColumnMetadata(new Guid("{727FABA4-39F1-4A27-9BB6-D7622FA08267}"), "RCODE", "DNS RCODE"),
@@ -52,6 +52,10 @@ namespace DnsAnalyticView
         private static readonly ColumnConfiguration FlagsColumn = new ColumnConfiguration(
             new ColumnMetadata(new Guid("{727FABA8-39F1-4A27-9BB6-D7622FA08267}"), "Flags", "DNS Flags"),
             new UIHints { Width = 40 });
+
+        private static readonly ColumnConfiguration FlagsAltColumn = new ColumnConfiguration(
+            new ColumnMetadata(new Guid("{727FACA8-39F1-4A27-9BB6-D7622FA08267}"), "Flags (Interpreted)", "Interpreted DNS Flags"),
+            new UIHints { Width = 100, IsVisible = false });
 
         private static readonly ColumnConfiguration DNSSECColumn = new ColumnConfiguration(
             new ColumnMetadata(new Guid("{727FABA9-39F1-4A27-9BB6-D7622FA08267}"), "DNSSEC", "Is DNSSEC"),
@@ -79,23 +83,23 @@ namespace DnsAnalyticView
 
         private static readonly ColumnConfiguration TCPColumn = new ColumnConfiguration(
             new ColumnMetadata(new Guid("{727FABD2-39F1-4A27-9BB6-D7622FA08267}"), "TCP", "Is TCP Packet"),
-            new UIHints { Width = 40 });
+            new UIHints { Width = 40, IsVisible = false });
 
         private static readonly ColumnConfiguration SrcAddrColumn = new ColumnConfiguration(
             new ColumnMetadata(new Guid("{727FABD3-39F1-4A27-9BB6-D7622FA08267}"), "SrcAddr", "Packet Source Address"),
-            new UIHints { Width = 80 });
+            new UIHints { Width = 80, IsVisible = false });
 
         private static readonly ColumnConfiguration SrcPortColumn = new ColumnConfiguration(
             new ColumnMetadata(new Guid("{727FABD4-39F1-4A27-9BB6-D7622FA08267}"), "SrcPort", "Packet Source Port"),
-            new UIHints { Width = 40 });
+            new UIHints { Width = 40, IsVisible = false });
 
         private static readonly ColumnConfiguration DstAddrColumn = new ColumnConfiguration(
             new ColumnMetadata(new Guid("{727FABD5-39F1-4A27-9BB6-D7622FA08267}"), "DstAddr", "Packet Destination Address"),
-            new UIHints { Width = 80 });
+            new UIHints { Width = 80, IsVisible = false });
 
         private static readonly ColumnConfiguration DstPortColumn = new ColumnConfiguration(
             new ColumnMetadata(new Guid("{727FABD6-39F1-4A27-9BB6-D7622FA08267}"), "DstPort", "Packet Destination Port"),
-            new UIHints { Width = 40 });
+            new UIHints { Width = 40, IsVisible = false });
 
         private static readonly ColumnConfiguration RemoteAddrColumn = new ColumnConfiguration(
             new ColumnMetadata(new Guid("{727FABD7-39F1-4A27-9BB6-D7622FA08267}"), "Remote Address", "Packet Remote Address"),
@@ -123,7 +127,7 @@ namespace DnsAnalyticView
 
         private static readonly ColumnConfiguration RecursionDepthColumn = new ColumnConfiguration(
             new ColumnMetadata(new Guid("{727FABE5-39F1-4A27-9BB6-D7622FA08267}"), "RecursionDepth", "Recursion Depth"),
-            new UIHints { Width = 40 });
+            new UIHints { Width = 40, IsVisible = false });
 
         private static readonly ColumnConfiguration ElapsedTimeColumn = new ColumnConfiguration(
             new ColumnMetadata(new Guid("{727FABE6-39F1-4A27-9BB6-D7622FA08267}"), "ElapsedTime", "Elapsed Time"),
@@ -191,6 +195,7 @@ namespace DnsAnalyticView
             var reasonProjection = baseProjection.Compose(x => x.Reason);
             var ednsUdpPayloadSizeProjection = baseProjection.Compose(x => x.EDNSUdpPayloadSize);
             var flagsProjection = baseProjection.Compose(x => x.Flags.ToString("X4"));
+            var flagsAltProjection = baseProjection.Compose(x => DnsUtilities.FlagsToString(x.Flags));
             var rdProjection = baseProjection.Compose(x => x.RD);
             var aaProjection = baseProjection.Compose(x => x.AA);
             var adProjection = baseProjection.Compose(x => x.AD);
@@ -229,9 +234,14 @@ namespace DnsAnalyticView
                     QXIDColumn,
                     SourceColumn,
                     DestinationColumn,
+                    SrcAddrColumn,
+                    SrcPortColumn,
+                    DstAddrColumn,
+                    DstPortColumn,
                     TCPColumn,
                     RCODEColumn,
                     FlagsColumn,
+                    FlagsAltColumn,
                     DNSSECColumn,
                     SecureColumn,
                     ZoneColumn,
@@ -259,9 +269,14 @@ namespace DnsAnalyticView
                     QXIDColumn,
                     SourceColumn,
                     DestinationColumn,
+                    SrcAddrColumn,
+                    SrcPortColumn,
+                    DstAddrColumn,
+                    DstPortColumn,
                     TCPColumn,
                     RCODEColumn,
                     FlagsColumn,
+                    FlagsAltColumn,
                     DNSSECColumn,
                     SecureColumn,
                     ZoneColumn,
@@ -290,9 +305,14 @@ namespace DnsAnalyticView
                     QXIDColumn,
                     SourceColumn,
                     DestinationColumn,
+                    SrcAddrColumn,
+                    SrcPortColumn,
+                    DstAddrColumn,
+                    DstPortColumn,
                     TCPColumn,
                     RCODEColumn,
                     FlagsColumn,
+                    FlagsAltColumn,
                     DNSSECColumn,
                     SecureColumn,
                     ZoneColumn,
@@ -338,6 +358,13 @@ namespace DnsAnalyticView
                 .AddColumn(ReasonColumn, reasonProjection)
                 .AddColumn(EDNSUdpPayloadSizeColumn, ednsUdpPayloadSizeProjection)
                 .AddColumn(FlagsColumn, flagsProjection)
+                .AddColumn(FlagsAltColumn, flagsAltProjection)
+                // Column variants not available yet
+                //.AddColumnWithVariants(FlagsColumn, flagsProjection, builder =>
+                //{
+                //    return builder.WithModes("HEX")
+                //        .WithMode(FlagsAltColumn, "Interpreted", flagsAltProjection);
+                //})
                 .AddColumn(RDColumn, rdProjection)
                 .AddColumn(AAColumn, aaProjection)
                 .AddColumn(ADColumn, adProjection)
