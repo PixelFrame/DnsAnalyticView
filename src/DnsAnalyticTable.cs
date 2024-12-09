@@ -215,7 +215,7 @@ namespace DnsAnalyticView
             var recursionScopeProjection = baseProjection.Compose(x => x.RecursionScope);
             var cacheScopeProjection = baseProjection.Compose(x => x.CacheScope);
             var recursionDepthProjection = baseProjection.Compose(x => x.RecursionDepth);
-            var elapsedTimeProjection = baseProjection.Compose(x => TimestampDelta.FromNanoseconds((long)x.ElapsedTime * 100));     // Needs verification
+            var elapsedTimeProjection = baseProjection.Compose(x => TimestampDelta.FromMilliseconds(x.ElapsedTime));    // After testing with several traces, millisecond should be the correct unit.
             var correlationIdProjection = baseProjection.Compose(x => x.CorrelationID);
             var operationProjection = baseProjection.Compose(x => x.Operation);
             var timeProjection = baseProjection.Compose(x => x.Timestamp);
