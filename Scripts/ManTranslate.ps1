@@ -1,4 +1,4 @@
-$man = [xml](Get-Content $PSScriptRoot\$args[0])
+$man = [xml](Get-Content $PSScriptRoot\$($args[0]))
 
 $Templates = @{}
 foreach ($temp in $man.SelectNodes('//template')) 
@@ -21,10 +21,12 @@ $AnalyticalEvent = @()
 foreach ($evt in $man.SelectNodes('//event[@channel="channel0"]')) 
 {
     $Message = $Strings[$evt.message.SubString(9, $evt.message.Length - 10)];
+    $Operation = $Message.SubString(0, $Message.IndexOf(':'))
     $FormattedMessage = [regex]::Replace($Message, '%(\d+)', '{$1}') -f $Templates[$evt.template]
     $AnalyticalEvent += [pscustomobject]@{
-        ID      = $evt.value;
-        Message = $FormattedMessage
+        ID        = $evt.value;
+        Operation = $Operation;
+        Message   = $FormattedMessage
     }
 }
-$AnalyticalEvent | ConvertTo-Csv | Out-File $PSScriptRoot\$args[1]
+$AnalyticalEvent | ConvertTo-Csv | Out-File $PSScriptRoot\$($args[1])
