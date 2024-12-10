@@ -28,7 +28,7 @@ namespace DnsAnalyticView
         public override void ProcessSource(ISourceDataProcessor<DnsAnalyticEvent, object, Guid> dataProcessor, ILogger logger, IProgress<int> progress, CancellationToken cancellationToken)
         {
             using var source = new ETWTraceEventSource(filePaths);
-            var manifestStream = new MemoryStream(System.Text.Encoding.ASCII.GetBytes(Manifest._10_0_26100_1457));
+            var manifestStream = new MemoryStream(System.Text.Encoding.ASCII.GetBytes(Manifests._10_0_26100_1457));
             var manifest = new ProviderManifest(manifestStream);
             var lastEventTime = DateTime.MinValue;
 
