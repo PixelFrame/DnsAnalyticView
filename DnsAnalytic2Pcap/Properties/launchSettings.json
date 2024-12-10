@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "DnsAnalytic2Pcap": {
+      "commandName": "Project",
+      "commandLineArgs": "E:\\Temp\\DnsAnalytic-001.etl E:\\Temp\\Dns-001.pcap"
+    }
+  }
+}

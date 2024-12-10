@@ -13,10 +13,13 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Scripts", "Scripts", "{A5316B09-4F68-4F49-BBB2-D2DC58B8A212}"
 	ProjectSection(SolutionItems) = preProject
+		Scripts\ExportManifest.ps1 = Scripts\ExportManifest.ps1
 		Scripts\Manifest-2025.CSV = Scripts\Manifest-2025.CSV
 		Scripts\Manifest-2025.XML = Scripts\Manifest-2025.XML
 		Scripts\ManTranslate.ps1 = Scripts\ManTranslate.ps1
 	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DnsAnalytic2Pcap", "DnsAnalytic2Pcap\DnsAnalytic2Pcap.csproj", "{AC6CFB2D-8F3D-480C-A86D-C8348B01A067}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -28,6 +31,10 @@ Global
 		{939990A2-D102-43B1-8E1D-84A6FB9747D8}.Debug|x64.Build.0 = Debug|x64
 		{939990A2-D102-43B1-8E1D-84A6FB9747D8}.Release|x64.ActiveCfg = Release|x64
 		{939990A2-D102-43B1-8E1D-84A6FB9747D8}.Release|x64.Build.0 = Release|x64
+		{AC6CFB2D-8F3D-480C-A86D-C8348B01A067}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{AC6CFB2D-8F3D-480C-A86D-C8348B01A067}.Debug|x64.Build.0 = Debug|Any CPU
+		{AC6CFB2D-8F3D-480C-A86D-C8348B01A067}.Release|x64.ActiveCfg = Release|Any CPU
+		{AC6CFB2D-8F3D-480C-A86D-C8348B01A067}.Release|x64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
