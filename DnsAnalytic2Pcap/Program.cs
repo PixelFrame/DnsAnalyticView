@@ -10,10 +10,20 @@ namespace DnsAnalytic2Pcap
         private static readonly int[] ShouldNotConvert =
             [262, 279, 280, 281, 282, 283, 288, 291];
 
+        private const string Usage = @"DnsAnalytic2Pcap input.etl [output.pcap]";
+
         static void Main(string[] args)
         {
-            using var source = new ETWTraceEventSource(args[0]);
-            using var writer = new DnsAnalyticPacketWriter(args[1]);
+            if (args.Length < 1 || args.Length > 2)
+            {
+                Console.WriteLine(Usage);
+                Environment.Exit(87);
+            }
+
+            var inputFile = args[0];
+            var outputFile = args.Length == 2 ? args[1] : inputFile[..inputFile.LastIndexOf('.')] + ".pcap";
+            using var source = new ETWTraceEventSource(inputFile);
+            using var writer = new DnsAnalyticPacketWriter(outputFile);
             using var manifestStream = new MemoryStream(System.Text.Encoding.ASCII.GetBytes(Manifests._10_0_26100_1457));
             var manifest = new ProviderManifest(manifestStream);
 
