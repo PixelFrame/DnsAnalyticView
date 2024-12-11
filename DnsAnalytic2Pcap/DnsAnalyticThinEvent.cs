@@ -50,13 +50,12 @@ namespace DnsAnalytic2Pcap
             { 291, DnsAnalyticOperation.RECURSE_QUERY_TIMEOUT },
         };
 
-        public DnsAnalyticThinEvent(TraceEvent e, long startTime)
+        public DnsAnalyticThinEvent(TraceEvent e)
         {
             if (e.ProviderGuid != Microsoft_Windows_DNSServer || e.Channel != (TraceEventChannel)16) throw new ArgumentException("Not DNS Analytic event");
             Operation = Operations.TryGetValue((int)e.ID, out var op) ? op
                 : DnsAnalyticOperation.UNKNOWN;
             Timestamp = e.TimeStamp;
-            //RelativeTime = new Timestamp((e.TimeStamp.Ticks - startTime) * 100);
 
             TCP = e.BooleanPayloadByName(nameof(TCP));
 
@@ -171,7 +170,6 @@ namespace DnsAnalytic2Pcap
                         DstPort = 0;
                         break;
                     }
-            TCP = e.BooleanPayloadByName(nameof(TCP));
             }
 
             if (e.PayloadNames.Contains(nameof(PacketData))) PacketData = (byte[])e.PayloadByName(nameof(PacketData));

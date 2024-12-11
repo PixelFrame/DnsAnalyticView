@@ -38,7 +38,7 @@ namespace DnsAnalytic2Pcap
                         Console.WriteLine("Skipping event {0}", DnsAnalyticThinEvent.Operations.TryGetValue(id, out var op) ? op : id);
                         return;
                     }
-                    var evt = new DnsAnalyticThinEvent(e, source.SessionStartTime.Ticks);
+                    var evt = new DnsAnalyticThinEvent(e);
                     writer.ConstructPacket(evt);
                 }
                 catch (Exception ex)
