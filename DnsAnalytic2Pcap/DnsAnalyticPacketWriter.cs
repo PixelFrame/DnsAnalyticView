@@ -12,8 +12,8 @@ namespace DnsAnalytic2Pcap
 {
     internal class DnsAnalyticPacketWriter : IDisposable
     {
-        private static readonly PhysicalAddress ethSrc = PhysicalAddress.Parse("12-34-56-78-90-AA");
-        private static readonly PhysicalAddress ethDst = PhysicalAddress.Parse("12-34-56-78-90-AB");
+        private static readonly PhysicalAddress ethLocal = PhysicalAddress.Parse("12-34-56-78-90-AA");
+        private static readonly PhysicalAddress ethRemote = PhysicalAddress.Parse("12-34-56-78-90-AB");
 
         private readonly CaptureFileWriterDevice writer;
         private static readonly DateTime epoch = new(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
@@ -28,9 +28,9 @@ namespace DnsAnalytic2Pcap
             writer.Open(config);
         }
 
-        internal void ConstructPacket(DnsAnalyticThinEvent e)
+        internal void ConstructPacket(DnsAnalyticThinEvent e, bool isInbound)
         {
-            var ethPacket = new EthernetPacket(ethSrc, ethDst, EthernetType.None);
+            var ethPacket = isInbound ? new EthernetPacket(ethRemote, ethLocal, EthernetType.None) : new EthernetPacket(ethLocal, ethRemote, EthernetType.None);
 
             if (e.SrcAddr.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork)
             {
@@ -47,10 +47,12 @@ namespace DnsAnalytic2Pcap
             if (e.TCP)
             {
                 var dnsLen = BitConverter.GetBytes(e.PacketData.Length);
-                var tcpPayload = e.PacketData.Prepend(dnsLen[1]).Prepend(dnsLen[0]).ToArray();
+                var tcpPayload = e.PacketData.Prepend(dnsLen[0]).Prepend(dnsLen[1]).ToArray();
                 var tcpPacket = new TcpPacket((ushort)e.SrcPort, (ushort)e.DstPort)
                 {
-                    PayloadData = tcpPayload
+                    PayloadData = tcpPayload,
+                    Flags = 0x18,
+                    WindowSize = 255,
                 };
                 tcpPacket.ParentPacket = ethPacket.PayloadPacket;
                 ethPacket.PayloadPacket.PayloadPacket = tcpPacket;

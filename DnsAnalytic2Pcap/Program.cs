@@ -10,6 +10,9 @@ namespace DnsAnalytic2Pcap
         private static readonly int[] ShouldNotConvert =
             [262, 279, 280, 281, 282, 283, 288, 291];
 
+        private static readonly int[] InboundEvents =
+            [256, 261, 266, 268, 270, 272, 273, 275, 278, 287, 290];
+
         private const string Usage = @"DnsAnalytic2Pcap input.etl [output.pcap]";
 
         static void Main(string[] args)
@@ -39,7 +42,7 @@ namespace DnsAnalytic2Pcap
                         return;
                     }
                     var evt = new DnsAnalyticThinEvent(e);
-                    writer.ConstructPacket(evt);
+                    writer.ConstructPacket(evt, InboundEvents.Contains(id));
                 }
                 catch (Exception ex)
                 {
