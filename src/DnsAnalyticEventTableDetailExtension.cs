@@ -18,7 +18,7 @@ namespace DnsAnalyticView
             {
                 var msg = DnsMessage.Parse(evt.PacketData, false);
                 result.Add(new TableRowDetailEntry("XID", msg.Header.TransactionID.ToString("X4")));
-                var flagsEntry = new TableRowDetailEntry("Flags", msg.Header.Flags.ToString("X4"));
+                var flagsEntry = new TableRowDetailEntry("Flags", $"{msg.Header.Flags:X4} {DnsUtilities.FlagsToString(msg.Header.Flags)}");
                 flagsEntry.AddChildDetailsInfo(new("QR", msg.Header.HeaderFlags.HasFlag(HeaderFlags.QR) ? "1 - Response" : "0 - Request"));
                 flagsEntry.AddChildDetailsInfo(new("OpCode", msg.Header.OpCode.ToString()));
                 flagsEntry.AddChildDetailsInfo(new("AA", msg.Header.HeaderFlags.HasFlag(HeaderFlags.AA) ? "1 - Authoritative" : "0 - Not Authoritative"));
@@ -59,18 +59,32 @@ namespace DnsAnalyticView
                 var adEntry = new TableRowDetailEntry("Additionals");
                 foreach (var a in msg.Additionals)
                 {
-                    var aChildEntry = new TableRowDetailEntry(a.Name.ToString(), $"type {a.Type} class {a.Class}");
-                    aChildEntry.AddChildDetailsInfo(new("TTL", a.TTL.ToString()));
-                    aChildEntry.AddChildDetailsInfo(new("DataLength", a.RDLength.ToString()));
-                    aChildEntry.AddChildDetailsInfo(new("Data", a.RData.ToString()));
-                    adEntry.AddChildDetailsInfo(aChildEntry);
+                    if (a.Type == RRType.OPT)
+                    {
+                        var aChildEntry = new TableRowDetailEntry(a.Name.ToString(), $"type {a.Type}");
+                        aChildEntry.AddChildDetailsInfo(new("EDNS UDP Payload Size", a.EDNS_UdpPayloadSize.ToString()));
+                        aChildEntry.AddChildDetailsInfo(new("EDNS Extended RCODE", a.EDNS_HighRCODE.ToString()));
+                        aChildEntry.AddChildDetailsInfo(new("EDNS Version", a.EDNS_Version.ToString()));
+                        aChildEntry.AddChildDetailsInfo(new("EDNS DO", a.EDNS_DO.ToString()));
+                        aChildEntry.AddChildDetailsInfo(new("DataLength", a.RDLength.ToString()));
+                        aChildEntry.AddChildDetailsInfo(new("Data", a.RData.ToString()));
+                        adEntry.AddChildDetailsInfo(aChildEntry);
+                    }
+                    else
+                    {
+                        var aChildEntry = new TableRowDetailEntry(a.Name.ToString(), $"type {a.Type} class {a.Class}");
+                        aChildEntry.AddChildDetailsInfo(new("TTL", a.TTL.ToString()));
+                        aChildEntry.AddChildDetailsInfo(new("DataLength", a.RDLength.ToString()));
+                        aChildEntry.AddChildDetailsInfo(new("Data", a.RData.ToString()));
+                        adEntry.AddChildDetailsInfo(aChildEntry);
+                    }
                 }
                 result.Add(qEntry);
                 result.Add(aEntry);
                 result.Add(auEntry);
                 result.Add(adEntry);
             }
-            catch (DnsParseException ex) 
+            catch (DnsParseException ex)
             {
                 Console.WriteLine(ex.ToString());
             }
