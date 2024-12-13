@@ -4,13 +4,12 @@
 
 ## Sample
 
-![wpa_sample](./Img/Sample.png)
+![wpa_sample](./img/Sample.png)
 
 ## Event Fields
 
 * Visible - Column shown in tables by default
 * Hidden - Column can be added
-* Implemented - Property implemented in DnsAnalyticEvent object but not built as a column
 * Not implemented - Property not implemented in DnsAnalyticEvent due to lack of practicality or knowledge
 
 | Field                      | Meaning                                                                                                                                                                                | Availability                    |
@@ -49,7 +48,7 @@
 | Reason                     | Why a query fails                                                                                                                                                                      | Visible                         |
 | AdditionalInfo             | Additional info, usually [VirtualizationInstance](https://learn.microsoft.com/en-us/powershell/module/dnsserver/add-dnsservervirtualizationinstance?view=windowsserver2022-ps) related | Visible                         |
 | GUID                       | ID to correlate a query and the subsequent events it triggers                                                                                                                          | Visible                         |
-| PacketData                 | DNS packet binary (UDP/TCP payload), possible to be decoded by Wireshark with a layer 4 pseudo header                                                                                  | Implemented                     |
+| PacketData                 | DNS packet binary (UDP/TCP payload), also possible to be decoded by Wireshark with a layer 4 pseudo header                                                                             | Visible as row detail           |
 | BufferSize                 | Size of [PacketData]                                                                                                                                                                   | Not implemented                 |
 | StaleRecordsPresent        | Unknown                                                                                                                                                                                | Not implemented                 |
 | QueriesAttached            | Unknown                                                                                                                                                                                | Not implemented                 |
