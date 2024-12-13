@@ -288,7 +288,7 @@ namespace DnsAnalyticView
         public string? Reason { get; set; } = string.Empty;
         public string? AdditionalInfo { get; set; } = string.Empty;
         public Guid CorrelationID { get; set; } = Guid.Empty;
-        public IReadOnlyList<byte> PacketData { get; set; } = Array.Empty<byte>();
+        public byte[] PacketData { get; set; } = Array.Empty<byte>();
         public uint EDNSUdpPayloadSize { get; set; } = 0;
 
         public Guid GetKey() => Microsoft_Windows_DNSServer;

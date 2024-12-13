@@ -21,6 +21,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Scripts", "Scripts", "{A531
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DnsAnalytic2Pcap", "DnsAnalytic2Pcap\DnsAnalytic2Pcap.csproj", "{AC6CFB2D-8F3D-480C-A86D-C8348B01A067}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KzA.DNS", "KzA.DNS\KzA.DNS\KzA.DNS.csproj", "{9C72B8BF-70C1-46B4-BA0F-E4C4115E2CE9}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -35,6 +37,10 @@ Global
 		{AC6CFB2D-8F3D-480C-A86D-C8348B01A067}.Debug|x64.Build.0 = Debug|Any CPU
 		{AC6CFB2D-8F3D-480C-A86D-C8348B01A067}.Release|x64.ActiveCfg = Release|Any CPU
 		{AC6CFB2D-8F3D-480C-A86D-C8348B01A067}.Release|x64.Build.0 = Release|Any CPU
+		{9C72B8BF-70C1-46B4-BA0F-E4C4115E2CE9}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{9C72B8BF-70C1-46B4-BA0F-E4C4115E2CE9}.Debug|x64.Build.0 = Debug|Any CPU
+		{9C72B8BF-70C1-46B4-BA0F-E4C4115E2CE9}.Release|x64.ActiveCfg = Release|Any CPU
+		{9C72B8BF-70C1-46B4-BA0F-E4C4115E2CE9}.Release|x64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

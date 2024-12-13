@@ -1,0 +1,3 @@
+[submodule "KzA.DNS"]
+	path = KzA.DNS
+	url = https://github.com/PixelFrame/KzA.DNS

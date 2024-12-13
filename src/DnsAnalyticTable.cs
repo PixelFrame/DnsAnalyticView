@@ -340,6 +340,10 @@ namespace DnsAnalyticView
                 .AddTableConfiguration(byRemoteAddrConfig)
                 .SetDefaultTableConfiguration(byCorrelationIdConfig)
                 .SetRowCount(events.Count)
+                .SetTableRowDetailsGenerator(row =>
+                {
+                    return events[row].ToRowDetail();
+                })
                 .AddColumn(CorrelationIDColumn, correlationIdProjection)
                 .AddColumn(OperationColumn, operationProjection)
                 .AddColumn(QNAMEColumn, qnameProjection)

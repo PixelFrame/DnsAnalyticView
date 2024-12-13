@@ -5,6 +5,7 @@ using Microsoft.Performance.SDK.Processing;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading;
 using ILogger = Microsoft.Performance.SDK.Processing.ILogger;
 
@@ -19,6 +20,9 @@ namespace DnsAnalyticView
         public override DataSourceInfo DataSourceInfo => info ?? throw new InvalidOperationException("Data Source has not been processed");
 
         private readonly IEnumerable<string> filePaths;
+
+        private static readonly int[] NotForPacket =
+            [262, 279, 280, 281, 282, 283, 288, 291];
 
         public DnsAnalyticParser(IEnumerable<string> filePaths)
         {
@@ -42,7 +46,7 @@ namespace DnsAnalyticView
                 }
                 try
                 {
-                    var evt = new DnsAnalyticEvent(e, source.SessionStartTime.Ticks);
+                    var evt = new DnsAnalyticEvent(e, source.SessionStartTime.Ticks, !NotForPacket.Contains((int)e.ID));
                     dataProcessor.ProcessDataElement(evt, this, cancellationToken);
                     lastEventTime = e.TimeStamp;
                 }
