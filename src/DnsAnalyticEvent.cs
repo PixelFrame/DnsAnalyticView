@@ -1,4 +1,5 @@
-﻿using Microsoft.Diagnostics.Tracing;
+﻿using KzA.DNS;
+using Microsoft.Diagnostics.Tracing;
 using Microsoft.Performance.SDK;
 using Microsoft.Performance.SDK.Extensibility;
 using System;
