@@ -17,8 +17,12 @@ namespace DnsAnalyticView
             requiredDataCookers: new List<DataCookerPath> { DnsAnalyticEventCooker.CookerPath });
 
         #region Columns
-        private static readonly ColumnConfiguration QNAMEColumn = new ColumnConfiguration(
-            new ColumnMetadata(new Guid("{727FABA0-39F1-4A27-9BB6-D7622FA08267}"), "QNAME", "Query Name"),
+        private static readonly ColumnConfiguration QNAMERColumn = new ColumnConfiguration(
+            new ColumnMetadata(new Guid("{727FABA0-39F1-4A27-9BB6-D7622FA08267}"), "QNAME (RAW)", "Raw Query Name"),
+            new UIHints { Width = 120, IsVisible = false });
+
+        private static readonly ColumnConfiguration QNAMENColumn = new ColumnConfiguration(
+            new ColumnMetadata(new Guid("{727FACA0-39F1-4A27-9BB6-D7622FA08267}"), "QNAME (Normalized)", "Normalized Query Name"),
             new UIHints { Width = 120 });
 
         private static readonly ColumnConfiguration QTYPEColumn = new ColumnConfiguration(
@@ -187,7 +191,8 @@ namespace DnsAnalyticView
             var eventIdProjection = baseProjection.Compose(x => x.EventID);
             var keywordsProjection = baseProjection.Compose(x => x.Keywords);
             var levelProjection = baseProjection.Compose(x => x.Level);
-            var qnameProjection = baseProjection.Compose(x => x.QNAME);
+            var qnamerProjection = baseProjection.Compose(x => x.QNAME);
+            var qnamenProjection = baseProjection.Compose(x => x.QNAME?.ToLower());
             var qtypeProjection = baseProjection.Compose(x => x.QTYPE);
             var xidProjection = baseProjection.Compose(x => x.XID.ToString("X4"));
             var qxidProjection = baseProjection.Compose(x => x.QXID.ToString("X4"));
@@ -228,7 +233,8 @@ namespace DnsAnalyticView
                     CorrelationIDColumn,
                     TableConfiguration.PivotColumn,
                     OperationColumn,
-                    QNAMEColumn,
+                    QNAMERColumn,
+                    QNAMENColumn,
                     QTYPEColumn,
                     XIDColumn,
                     QXIDColumn,
@@ -260,8 +266,9 @@ namespace DnsAnalyticView
             {
                 Columns = new[]
                 {
-                    QNAMEColumn,
+                    QNAMENColumn,
                     TableConfiguration.PivotColumn,
+                    QNAMERColumn,
                     CorrelationIDColumn,
                     OperationColumn,
                     QTYPEColumn,
@@ -297,7 +304,8 @@ namespace DnsAnalyticView
                 {
                     RemoteAddrColumn,
                     TableConfiguration.PivotColumn,
-                    QNAMEColumn,
+                    QNAMERColumn,
+                    QNAMENColumn,
                     CorrelationIDColumn,
                     OperationColumn,
                     QTYPEColumn,
@@ -346,7 +354,8 @@ namespace DnsAnalyticView
                 })
                 .AddColumn(CorrelationIDColumn, correlationIdProjection)
                 .AddColumn(OperationColumn, operationProjection)
-                .AddColumn(QNAMEColumn, qnameProjection)
+                .AddColumn(QNAMERColumn, qnamerProjection)
+                .AddColumn(QNAMENColumn, qnamenProjection)
                 .AddColumn(QTYPEColumn, qtypeProjection)
                 .AddColumn(XIDColumn, xidProjection)
                 .AddColumn(QXIDColumn, qxidProjection)
