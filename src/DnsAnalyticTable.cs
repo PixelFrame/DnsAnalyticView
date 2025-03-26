@@ -17,12 +17,13 @@ namespace DnsAnalyticView
             requiredDataCookers: new List<DataCookerPath> { DnsAnalyticEventCooker.CookerPath });
 
         #region Columns
+        /*
         private static readonly ColumnConfiguration QNAMERColumn = new ColumnConfiguration(
             new ColumnMetadata(new Guid("{727FABA0-39F1-4A27-9BB6-D7622FA08267}"), "QNAME (RAW)", "Raw Query Name"),
             new UIHints { Width = 120, IsVisible = false });
-
-        private static readonly ColumnConfiguration QNAMENColumn = new ColumnConfiguration(
-            new ColumnMetadata(new Guid("{727FACA0-39F1-4A27-9BB6-D7622FA08267}"), "QNAME (Normalized)", "Normalized Query Name"),
+        */
+        private static readonly ColumnConfiguration QNAMEColumn = new ColumnConfiguration(
+            new ColumnMetadata(new Guid("{727FABA0-39F1-4A27-9BB6-D7622FA08267}"), "QNAME", "Query Name"),
             new UIHints { Width = 120 });
 
         private static readonly ColumnConfiguration QTYPEColumn = new ColumnConfiguration(
@@ -56,11 +57,11 @@ namespace DnsAnalyticView
         private static readonly ColumnConfiguration FlagsColumn = new ColumnConfiguration(
             new ColumnMetadata(new Guid("{727FABA8-39F1-4A27-9BB6-D7622FA08267}"), "Flags", "DNS Flags"),
             new UIHints { Width = 40 });
-
+        /*
         private static readonly ColumnConfiguration FlagsAltColumn = new ColumnConfiguration(
             new ColumnMetadata(new Guid("{727FACA8-39F1-4A27-9BB6-D7622FA08267}"), "Flags (Interpreted)", "Interpreted DNS Flags"),
             new UIHints { Width = 100, IsVisible = false });
-
+        */
         private static readonly ColumnConfiguration DNSSECColumn = new ColumnConfiguration(
             new ColumnMetadata(new Guid("{727FABA9-39F1-4A27-9BB6-D7622FA08267}"), "DNSSEC", "Is DNSSEC"),
             new UIHints { Width = 40 });
@@ -233,8 +234,8 @@ namespace DnsAnalyticView
                     CorrelationIDColumn,
                     TableConfiguration.PivotColumn,
                     OperationColumn,
-                    QNAMERColumn,
-                    QNAMENColumn,
+                    //QNAMERColumn,
+                    QNAMEColumn,
                     QTYPEColumn,
                     XIDColumn,
                     QXIDColumn,
@@ -247,7 +248,7 @@ namespace DnsAnalyticView
                     TCPColumn,
                     RCODEColumn,
                     FlagsColumn,
-                    FlagsAltColumn,
+                    //FlagsAltColumn,
                     DNSSECColumn,
                     SecureColumn,
                     ZoneColumn,
@@ -266,9 +267,9 @@ namespace DnsAnalyticView
             {
                 Columns = new[]
                 {
-                    QNAMENColumn,
+                    QNAMEColumn,
                     TableConfiguration.PivotColumn,
-                    QNAMERColumn,
+                    //QNAMERColumn,
                     CorrelationIDColumn,
                     OperationColumn,
                     QTYPEColumn,
@@ -283,7 +284,7 @@ namespace DnsAnalyticView
                     TCPColumn,
                     RCODEColumn,
                     FlagsColumn,
-                    FlagsAltColumn,
+                    //FlagsAltColumn,
                     DNSSECColumn,
                     SecureColumn,
                     ZoneColumn,
@@ -304,8 +305,8 @@ namespace DnsAnalyticView
                 {
                     RemoteAddrColumn,
                     TableConfiguration.PivotColumn,
-                    QNAMERColumn,
-                    QNAMENColumn,
+                    //QNAMERColumn,
+                    QNAMEColumn,
                     CorrelationIDColumn,
                     OperationColumn,
                     QTYPEColumn,
@@ -320,7 +321,7 @@ namespace DnsAnalyticView
                     TCPColumn,
                     RCODEColumn,
                     FlagsColumn,
-                    FlagsAltColumn,
+                    //FlagsAltColumn,
                     DNSSECColumn,
                     SecureColumn,
                     ZoneColumn,
@@ -354,8 +355,15 @@ namespace DnsAnalyticView
                 })
                 .AddColumn(CorrelationIDColumn, correlationIdProjection)
                 .AddColumn(OperationColumn, operationProjection)
-                .AddColumn(QNAMERColumn, qnamerProjection)
-                .AddColumn(QNAMENColumn, qnamenProjection)
+                .AddColumnWithVariants(QNAMEColumn, qnamenProjection, builder =>
+                {
+                    return builder.WithModes(new() { Label = "Normalized" })
+                        .WithMode(
+                            new(Guid.NewGuid(), new() { Label = "Raw" }),
+                            qnamerProjection);
+                })
+                //.AddColumn(QNAMERColumn, qnamerProjection)
+                //.AddColumn(QNAMEColumn, qnamenProjection)
                 .AddColumn(QTYPEColumn, qtypeProjection)
                 .AddColumn(XIDColumn, xidProjection)
                 .AddColumn(QXIDColumn, qxidProjection)
@@ -370,14 +378,16 @@ namespace DnsAnalyticView
                 .AddColumn(RCODEColumn, rcodeProjection)
                 .AddColumn(ReasonColumn, reasonProjection)
                 .AddColumn(EDNSUdpPayloadSizeColumn, ednsUdpPayloadSizeProjection)
-                .AddColumn(FlagsColumn, flagsProjection)
-                .AddColumn(FlagsAltColumn, flagsAltProjection)
+                //.AddColumn(FlagsColumn, flagsProjection)
+                //.AddColumn(FlagsAltColumn, flagsAltProjection)
                 // Column variants not available yet
-                //.AddColumnWithVariants(FlagsColumn, flagsProjection, builder =>
-                //{
-                //    return builder.WithModes("HEX")
-                //        .WithMode(FlagsAltColumn, "Interpreted", flagsAltProjection);
-                //})
+                .AddColumnWithVariants(FlagsColumn, flagsProjection, builder =>
+                {
+                    return builder.WithModes(new() { Label = "HEX" })
+                        .WithMode(
+                            new(Guid.NewGuid(), new() { Label = "Interpreted" }),
+                            flagsAltProjection);
+                })
                 .AddColumn(RDColumn, rdProjection)
                 .AddColumn(AAColumn, aaProjection)
                 .AddColumn(ADColumn, adProjection)

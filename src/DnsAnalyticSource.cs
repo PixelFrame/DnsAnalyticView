@@ -20,7 +20,7 @@ namespace DnsAnalyticView
         {
             return new ProcessingSourceInfo
             {
-                CopyrightNotice = "Copyright 2024 KzA. All Rights Reserved.",
+                CopyrightNotice = "Copyright 2024-2025 KzA. All Rights Reserved.",
                 LicenseInfo = new LicenseInfo
                 {
                     Name = "MIT",

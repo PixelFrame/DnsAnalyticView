@@ -8,6 +8,12 @@
       "executablePath": "C:\\Program Files (x86)\\Windows Kits\\10\\Windows Performance Toolkit\\wpa.exe",
       "commandLineArgs": "-nodefault -addsearchdir $(ProjectDir)bin\\$(Platform)\\$(Configuration)",
       "nativeDebugging": false
+    },
+    "WPA (Store)": {
+      "commandName": "Executable",
+      "executablePath": "C:\\Program Files\\WindowsApps\\Microsoft.WindowsPerformanceAnalyzerPreview_11.8.278.0_x64__8wekyb3d8bbwe\\wpa.exe",
+      "commandLineArgs": "-nodefault -addsearchdir $(ProjectDir)bin\\$(Platform)\\$(Configuration)",
+      "nativeDebugging": false
     }
   }
 }
